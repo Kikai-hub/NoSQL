@@ -1,0 +1,88 @@
+{
+  "info": {
+    "name": "NoSQL Users (Spring Boot + MongoDB)",
+    "description": "CRUD для коллекции users. Запросы выполняются по порядку: Create сохраняет id в переменную userId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "userId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "1. Create user",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('201 Created', () => pm.response.to.have.status(201));",
+              "pm.collectionVariables.set('userId', pm.response.json().id);"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Anna\",\n  \"email\": \"anna@example.com\",\n  \"age\": 25\n}" },
+        "url": "{{baseUrl}}/api/users"
+      }
+    },
+    {
+      "name": "2. Get all users",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/users" }
+    },
+    {
+      "name": "3. Get user by id",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/users/{{userId}}" }
+    },
+    {
+      "name": "4. Search by name and age range",
+      "request": {
+        "method": "GET",
+        "url": {
+          "raw": "{{baseUrl}}/api/users?name=ann&minAge=18&maxAge=30",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "users"],
+          "query": [
+            { "key": "name", "value": "ann" },
+            { "key": "minAge", "value": "18" },
+            { "key": "maxAge", "value": "30" }
+          ]
+        }
+      }
+    },
+    {
+      "name": "5. Get users by exact age",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/users/age/25" }
+    },
+    {
+      "name": "6. Update user",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"Anna Smith\",\n  \"email\": \"anna.smith@example.com\",\n  \"age\": 26\n}" },
+        "url": "{{baseUrl}}/api/users/{{userId}}"
+      }
+    },
+    {
+      "name": "7. Create invalid user (400)",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": { "mode": "raw", "raw": "{\n  \"name\": \"\",\n  \"email\": \"not-an-email\",\n  \"age\": -1\n}" },
+        "url": "{{baseUrl}}/api/users"
+      }
+    },
+    {
+      "name": "8. Delete user",
+      "request": { "method": "DELETE", "url": "{{baseUrl}}/api/users/{{userId}}" }
+    },
+    {
+      "name": "9. Get deleted user (404)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/api/users/{{userId}}" }
+    }
+  ]
+}
